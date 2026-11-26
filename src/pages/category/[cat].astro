@@ -1,0 +1,18 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import RecipeGrid from '../../components/RecipeGrid.astro';
+import { CATEGORIES } from '../../site.config';
+export function getStaticPaths() {
+  return Object.keys(CATEGORIES).map((cat) => ({ params: { cat } }));
+}
+const { cat } = Astro.params as { cat: keyof typeof CATEGORIES };
+const info = CATEGORIES[cat];
+const recipes = (await getCollection('recipes')).filter((r) => r.data.category === cat);
+---
+<Base title={info.name} description={`${info.name} recipes from ChefYang, the AI chef. ${info.blurb}`}>
+  <div class="wrap">
+    <section class="intro"><h1>{info.name}</h1><p>{info.blurb}</p></section>
+    {recipes.length ? <RecipeGrid recipes={recipes} /> : <p class="empty">New recipes coming soon.</p>}
+  </div>
+</Base>

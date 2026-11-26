@@ -1,0 +1,11 @@
+---
+// Shows the real image if it exists in /public, otherwise a placeholder block.
+import fs from 'node:fs';
+import path from 'node:path';
+interface Props { src: string; alt: string; label?: string; eager?: boolean }
+const { src, alt, label, eager = false } = Astro.props;
+const exists = fs.existsSync(path.join(process.cwd(), 'public', src));
+---
+{exists
+  ? <img src={src} alt={alt} width="1000" height="1500" loading={eager ? 'eager' : 'lazy'} decoding="async" />
+  : <div class="ph" role="img" aria-label={alt}>{label ?? alt}</div>}

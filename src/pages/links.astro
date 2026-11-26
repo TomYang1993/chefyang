@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+import { SITE } from '../site.config';
+import '../styles/global.css';
+const recipes = (await getCollection('recipes')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 6);
+const utm = '?utm_source=instagram&utm_medium=social&utm_campaign=bio';
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChefYang links</title><meta name="robots" content="noindex" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+  <div class="links-page">
+    <h1 style="font-family:Georgia,serif">Chef<span style="color:var(--accent)">Yang</span></h1>
+    <p><span class="ai-badge">AI chef</span></p>
+    <p>Tap a recipe from my latest posts.</p>
+    {recipes.map((r) => <a class="btn" href={`/${r.id}/${utm}`}>{r.data.title}</a>)}
+    <a class="btn" href={`/${utm}`}>All recipes</a>
+    <a class="btn" href={SITE.pinterest}>Pinterest</a>
+    <p style="font-size:.8rem;color:var(--muted)">As an Amazon Associate I earn from qualifying purchases.</p>
+  </div>
+</body>
+</html>

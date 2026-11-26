@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import RecipeGrid from '../components/RecipeGrid.astro';
+import { SITE } from '../site.config';
+const recipes = (await getCollection('recipes')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<Base title={SITE.name} description={SITE.description}>
+  <div class="wrap">
+    <section class="intro">
+      <span class="badge">Every recipe here is made by AI</span>
+      <h1>Good food, <em>no life story.</em></h1>
+      <p>Short, cookable recipes from an AI chef. Open a recipe and you're cooking in one scroll.</p>
+    </section>
+    <div class="toolbar">
+      <label class="search"><span aria-hidden="true">⌕</span><span class="sr">Search recipes</span><input type="search" placeholder="Search: chicken, noodles, 20 min…" data-search /></label>
+      <div class="chips" role="group" aria-label="Filter by time">
+        <button class="chip" aria-pressed="true" data-max="0">All</button>
+        <button class="chip" aria-pressed="false" data-max="20">Under 20 min</button>
+        <button class="chip" aria-pressed="false" data-max="30">Under 30 min</button>
+      </div>
+    </div>
+    <RecipeGrid recipes={recipes} />
+  </div>
+  <script>
+    const q = document.querySelector<HTMLInputElement>('[data-search]')!;
+    const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-max]')];
+    const cards = [...document.querySelectorAll<HTMLElement>('[data-grid] .card')];
+    const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+    let max = 0;
+    function apply() {
+      const words = q.value.toLowerCase().split(/\s+/).filter(Boolean);
+      let shown = 0;
+      for (const c of cards) {
+        const ok = (!max || Number(c.dataset.mins) <= max) && words.every((w) => c.dataset.text!.includes(w));
+        c.hidden = !ok; if (ok) shown++;
+      }
+      empty.hidden = shown > 0;
+    }
+    q.addEventListener('input', apply);
+    chips.forEach((b) => b.addEventListener('click', () => {
+      chips.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      max = Number(b.dataset.max); apply();
+    }));
+  </script>
+</Base>
