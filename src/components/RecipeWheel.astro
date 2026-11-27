@@ -1,0 +1,147 @@
+---
+// A 3D ring of recipe cards. Auto-rotates, drag or arrow keys to spin, cards blur with depth.
+// Vanilla JS + CSS 3D transforms, no framework runtime.
+import type { ShowcaseItem } from '../utils/showcase';
+import { cardBackground } from '../utils/showcase';
+interface Props { items: ShowcaseItem[]; label?: string; speed?: number }
+const { items, label = 'Recipe carousel', speed = 10 } = Astro.props;
+const n = items.length;
+const step = 360 / Math.max(n, 1);
+---
+<section class="wheel" data-wheel data-speed={speed} aria-label={label} aria-roledescription="carousel" tabindex="0">
+  <div class="wheel-stage">
+    <div class="wheel-ring" data-ring>
+      {items.map((it, i) => (
+        <a class="wheel-card" href={it.href} style={`--a:${i * step}deg; --bg:${cardBackground(it, i)}`}
+           aria-roledescription="slide" aria-label={`${it.title}, ${i + 1} of ${n}`} draggable="false" data-card>
+          {it.image && <img src={it.image} alt={it.alt} loading="lazy" decoding="async" draggable="false" />}
+          <span class="wheel-meta">
+            <small>{it.category} · {it.minutes} min</small>
+            <strong>{it.title}</strong>
+          </span>
+        </a>
+      ))}
+    </div>
+  </div>
+  <p class="wheel-caption" data-caption>
+    <a href={items[0]?.href}>{items[0]?.title}</a>
+  </p>
+  <p class="sr">Use the left and right arrow keys to move between recipes.</p>
+</section>
+
+<style>
+  .wheel { position: relative; outline: none; overflow: hidden; padding: 24px 0 8px; --w: 250px; --h: 340px; --r: 520px; }
+  .wheel:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); border-radius: var(--radius); }
+  .wheel-stage { height: calc(var(--h) + 170px); display: grid; place-items: center; perspective: 2400px; }
+  .wheel-ring { position: relative; width: var(--w); height: var(--h); transform-style: preserve-3d; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+  .wheel.dragging .wheel-ring { cursor: grabbing; }
+  .wheel-card { position: absolute; inset: 0; border-radius: var(--radius); overflow: hidden; text-decoration: none; color: #fff;
+    background: var(--bg) center / cover no-repeat; transform: rotateY(var(--a)) translateZ(var(--r));
+    box-shadow: 0 18px 40px -18px rgb(0 0 0 / .45); -webkit-user-drag: none; }
+  .wheel-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  .wheel-meta { position: absolute; inset: auto 0 0 0; display: grid; gap: 6px; padding: 60px 18px 18px;
+    background: linear-gradient(to top, rgb(0 0 0 / .62), transparent); }
+  .wheel-meta small { font: 600 0.7rem/1 var(--sans); letter-spacing: .09em; text-transform: uppercase; opacity: .85; }
+  .wheel-meta strong { font: 400 1.65rem/1.05 var(--display); }
+  .wheel-caption { text-align: center; margin: 4px 0 0; font: italic 400 1.5rem/1.2 var(--display); min-height: 1.8em; }
+  .wheel-caption a { text-decoration: none; }
+  .wheel-caption a:hover { color: var(--accent); }
+  @media (max-width: 640px) { .wheel { --w: 170px; --h: 235px; --r: 290px; } .wheel-meta strong { font-size: 1.25rem; } .wheel-stage { perspective: 1600px; } }
+</style>
+
+<script>
+  const wrap = (v: number, n: number) => ((v % n) + n) % n;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('[data-wheel]').forEach((root) => {
+    const ring = root.querySelector<HTMLElement>('[data-ring]')!;
+    const cards = [...root.querySelectorAll<HTMLAnchorElement>('[data-card]')];
+    const caption = root.querySelector<HTMLElement>('[data-caption] a')!;
+    const n = cards.length;
+    if (n < 2) return;
+    const step = 360 / n;
+    const speed = Number(root.dataset.speed) || 10; // degrees per second
+    const MAX_BLUR = 10, MAX_MOTION_BLUR = 14;
+
+    let target = 0, current = 0, dir = -1, motionBlur = 0, last = performance.now();
+    let hovered = false, dragging = false, visible = true, front = -1, raf = 0;
+
+    function setFront(i: number) {
+      if (i === front) return;
+      front = i;
+      const it = cards[i];
+      caption.textContent = it.querySelector('strong')!.textContent;
+      caption.href = it.href;
+    }
+
+    function paint() {
+      ring.style.transform = `rotateY(${current}deg)`;
+      setFront(wrap(Math.round(-current / step), n));
+      const half = Math.max(Math.floor(n / 2) - 1, 1);
+      cards.forEach((c, i) => {
+        const d = Math.min(Math.abs(i - front), n - Math.abs(i - front));
+        const depth = d <= 1 ? 0 : ((d - 1) / half) * MAX_BLUR;
+        const blur = depth + motionBlur;
+        c.style.filter = blur > 0.2 ? `blur(${blur.toFixed(1)}px)` : '';
+        c.tabIndex = d === 0 ? 0 : -1;
+      });
+    }
+
+    function tick(now: number) {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      if (!reduce && !dragging && !hovered) target += speed * dir * dt;
+      const prev = current;
+      current += (target - current) * (1 - Math.exp(-dt * 9));
+      const velocity = Math.abs(current - prev) / Math.max(dt, 0.001);
+      motionBlur = dragging ? Math.min(velocity / 70, MAX_MOTION_BLUR) : motionBlur * Math.exp(-dt * 3);
+      paint();
+      raf = visible ? requestAnimationFrame(tick) : 0;
+    }
+    function start() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); } }
+
+    // Pause the loop when the wheel is off screen.
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) start(); }).observe(root);
+
+    root.addEventListener('mouseenter', () => (hovered = true));
+    root.addEventListener('mouseleave', () => (hovered = false));
+    root.addEventListener('focusin', () => (hovered = true));
+    root.addEventListener('focusout', () => (hovered = false));
+    root.addEventListener('keydown', (e) => {
+      const by = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!by) return;
+      e.preventDefault();
+      target = Math.round(target / step) * step - by * step;
+      start();
+    });
+
+    // Drag to spin. A drag longer than a few pixels cancels the click on the card.
+    let startX = 0, startTarget = 0, moved = false;
+    ring.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      dragging = true; moved = false; startX = e.clientX; startTarget = target;
+    });
+    ring.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) > 5) {
+        // Capture only once it is a real drag, so a plain tap still opens the recipe.
+        moved = true; root.classList.add('dragging'); ring.setPointerCapture(e.pointerId);
+      }
+      if (!moved) return;
+      target = startTarget + dx * 0.35;
+      if (dx) dir = dx > 0 ? 1 : -1;
+    });
+    const end = () => {
+      if (!dragging) return;
+      dragging = false; root.classList.remove('dragging');
+      target = Math.round(target / step) * step; // settle on a card
+    };
+    ring.addEventListener('pointerup', end);
+    ring.addEventListener('pointercancel', end);
+    ring.addEventListener('click', (e) => { if (moved) { e.preventDefault(); moved = false; } }, true);
+
+    paint();
+    start();
+  });
+</script>

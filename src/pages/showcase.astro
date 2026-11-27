@@ -1,0 +1,23 @@
+---
+// Prototype page for the two recipe showcases. Not linked from the nav and kept out of search.
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import RecipeWheel from '../components/RecipeWheel.astro';
+import RecipeMagazine from '../components/RecipeMagazine.astro';
+import { toShowcase } from '../utils/showcase';
+const recipes = (await getCollection('recipes')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const items = toShowcase(recipes);
+---
+<Base title="Recipe showcase" description="Spin the wheel or flip through the covers to pick tonight's dinner.">
+  <meta slot="head" name="robots" content="noindex" />
+  <div class="wrap">
+    <section class="intro">
+      <span class="badge">Prototype</span>
+      <h1>Pick tonight's <em>dinner.</em></h1>
+      <p>Drag the wheel or use the arrow keys. Tap a card to open the recipe.</p>
+    </section>
+  </div>
+  <RecipeWheel items={items} label="Spin through recipes" />
+  <div class="wrap"><h2 class="section-title">This week's covers</h2></div>
+  <RecipeMagazine items={items} label="Recipe covers" />
+</Base>
