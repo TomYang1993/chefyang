@@ -12,7 +12,10 @@ const recipes = (await getCollection('recipes')).filter((r) => r.data.category =
 ---
 <Base title={info.name} description={`${info.name} recipes from ChefYang, the AI chef. ${info.blurb}`}>
   <div class="wrap">
-    <section class="intro"><h1>{info.name}</h1><p>{info.blurb}</p></section>
-    {recipes.length ? <RecipeGrid recipes={recipes} /> : <p class="empty">New recipes coming soon.</p>}
+    <section class="cat-head">
+      <h1 class="rise">{info.name}</h1>
+      <p class="lede rise">{info.blurb} {recipes.length === 1 ? 'One recipe so far.' : recipes.length ? `${recipes.length} recipes so far.` : ''}</p>
+    </section>
+    {recipes.length ? <RecipeGrid recipes={recipes} /> : <p class="empty">No recipes here yet. The first ones are being written. <a href="/">See every recipe</a>.</p>}
   </div>
 </Base>

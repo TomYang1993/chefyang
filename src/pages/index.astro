@@ -2,25 +2,38 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import RecipeGrid from '../components/RecipeGrid.astro';
-import { SITE } from '../site.config';
+import Img from '../components/Img.astro';
+import { SITE, CATEGORIES } from '../site.config';
 const recipes = (await getCollection('recipes')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const newest = recipes[0];
+const newestMins = newest.data.prepMinutes + newest.data.cookMinutes;
 ---
 <Base title={SITE.name} description={SITE.description}>
   <div class="wrap">
-    <section class="intro">
-      <span class="badge">Every recipe here is made by AI</span>
-      <h1>Good food, <em>no life story.</em></h1>
-      <p>Short, cookable recipes from an AI chef. Open a recipe and you're cooking in one scroll.</p>
-    </section>
-    <div class="toolbar">
-      <label class="search"><span aria-hidden="true">⌕</span><span class="sr">Search recipes</span><input type="search" placeholder="Search: chicken, noodles, 20 min…" data-search /></label>
-      <div class="chips" role="group" aria-label="Filter by time">
-        <button class="chip" aria-pressed="true" data-max="0">All</button>
-        <button class="chip" aria-pressed="false" data-max="20">Under 20 min</button>
-        <button class="chip" aria-pressed="false" data-max="30">Under 30 min</button>
+    <section class="hero">
+      <h1 class="rise">Short recipes from an AI chef</h1>
+      <div class="below">
+        <p class="lede rise">Weeknight dinners, noodles and simple bakes. Every recipe and photo is made by AI, and you're cooking within one scroll.</p>
+        <a class="newest rise" href={`/${newest.id}/`}>
+        <div class="media"><Img src={newest.data.image.src} alt={newest.data.image.alt} label={newest.data.title} eager /></div>
+        <p><strong>Newest: {newest.data.title}.</strong> {newestMins} minutes, {CATEGORIES[newest.data.category].name.toLowerCase()}.</p>
+        </a>
       </div>
-    </div>
-    <RecipeGrid recipes={recipes} />
+    </section>
+    <section class="index" aria-labelledby="all-recipes">
+      <div class="index-head">
+        <h2 id="all-recipes">All recipes</h2>
+        <div class="toolbar">
+          <label class="search"><span class="sr">Search recipes</span><input type="search" placeholder="Search chicken, noodles, rice" data-search /></label>
+          <div class="filters" role="group" aria-label="Filter by time">
+            <button class="filter" aria-pressed="true" data-max="0">Any time</button>
+            <button class="filter" aria-pressed="false" data-max="20">Under 20 min</button>
+            <button class="filter" aria-pressed="false" data-max="30">Under 30 min</button>
+          </div>
+        </div>
+      </div>
+      <RecipeGrid recipes={recipes} />
+    </section>
   </div>
   <script>
     const q = document.querySelector<HTMLInputElement>('[data-search]')!;
