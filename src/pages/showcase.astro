@@ -11,10 +11,9 @@ const items = toShowcase(recipes);
 <Base title="Recipe showcase" description="Spin the wheel or flip through the covers to pick tonight's dinner.">
   <meta slot="head" name="robots" content="noindex" />
   <div class="wrap">
-    <section class="intro">
-      <span class="badge">Prototype</span>
-      <h1>Pick tonight's <em>dinner.</em></h1>
-      <p>Drag the wheel or use the arrow keys. Tap a card to open the recipe.</p>
+    <section class="hero">
+      <h1 class="rise">Pick tonight's dinner</h1>
+      <p class="lede rise">Drag the wheel or use the arrow keys. Tap a card to open the recipe.</p>
     </section>
   </div>
   <RecipeWheel items={items} label="Spin through recipes" />

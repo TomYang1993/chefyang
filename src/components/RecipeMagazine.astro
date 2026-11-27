@@ -22,7 +22,7 @@ const copies = [0, 1, 2]; // three copies make the loop seamless
           {sliceList.map((s) => <span class="mag-slice" style={`--o:${s.o}; --ao:${Math.abs(s.o)}; --pos:${s.pos}%`} />)}
         </span>
         <span class="mag-print" aria-hidden="true">
-          <span class="mag-mast">Chef<i>Yang</i></span>
+          <span class="mag-mast">ChefYang</span>
           <span class="mag-issue">{it.category}</span>
           <span class="mag-title">{it.title}</span>
           <span class="mag-time">{it.minutes} min</span>
@@ -44,21 +44,19 @@ const copies = [0, 1, 2]; // three copies make the loop seamless
     transform-style: preserve-3d; will-change: transform; -webkit-user-drag: none;
     transform: perspective(1200px) translateY(var(--y, 0px)) rotateY(var(--ry, 0deg)) rotateZ(calc(var(--bend) * 0.08deg)) scale(var(--s, 1));
     opacity: var(--op, 1); }
-  .mag-paper { position: absolute; inset: 0; display: flex; border-radius: 4px; overflow: hidden; transform-style: preserve-3d;
-    box-shadow: 0 22px 40px -22px rgb(0 0 0 / .55); }
+  .mag-paper { position: absolute; inset: 0; display: flex; overflow: hidden; transform-style: preserve-3d; }
   .mag-slice { flex: 1 1 0; height: 100%; margin-right: -1px; /* overlap hides hairline seams */ background-image: var(--bg); background-repeat: no-repeat;
     background-size: calc(var(--slices) * 100%) 100%; background-position: var(--pos) 50%; backface-visibility: hidden;
     transform: rotateY(calc(var(--bend) * var(--o) * 0.22deg)) skewY(calc(var(--bend) * var(--o) * 0.014deg))
       translateZ(calc(var(--abend) * var(--ao) * -0.18px)); }
   .mag-print { position: absolute; inset: 0; display: grid; grid-template-rows: auto auto 1fr auto; padding: 14px 14px 16px;
     pointer-events: none; text-shadow: 0 1px 12px rgb(0 0 0 / .35);
-    background: linear-gradient(to bottom, rgb(0 0 0 / .28), transparent 30%, transparent 55%, rgb(0 0 0 / .55)); border-radius: 4px; }
-  .mag-mast { font: 400 2.1rem/0.9 var(--display); letter-spacing: -0.03em; }
-  .mag-mast i { font-style: italic; }
-  .mag-issue { font: 600 0.62rem/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; margin-top: 8px; opacity: .9; }
-  .mag-title { align-self: end; font: italic 400 1.5rem/1.02 var(--display); }
-  .mag-time { margin-top: 10px; justify-self: start; font: 600 0.68rem/1 var(--sans); letter-spacing: .06em; padding: 6px 9px;
-    border-radius: 999px; background: var(--accent); color: var(--accent-ink); text-shadow: none; }
+    background: linear-gradient(to bottom, rgb(0 0 0 / .28), transparent 30%, transparent 55%, rgb(0 0 0 / .55)); }
+  .mag-mast { font: 800 1.9rem/0.9 var(--font); letter-spacing: -0.05em; }
+  .mag-issue { font: 600 0.62rem/1 var(--font); letter-spacing: .14em; text-transform: uppercase; margin-top: 8px; opacity: .9; }
+  .mag-title { align-self: end; font: 800 1.35rem/1 var(--font); letter-spacing: -0.03em; }
+  .mag-time { margin-top: 10px; justify-self: start; font: 600 0.68rem/1 var(--font); letter-spacing: .06em; padding: 6px 9px;
+    background: var(--accent); color: var(--accent-ink); text-shadow: none; }
   .mag-fade { position: absolute; top: 0; bottom: 0; width: 72px; z-index: 2; pointer-events: none; }
   .mag-fade.left { left: 0; background: linear-gradient(to right, var(--bg), transparent); }
   .mag-fade.right { right: 0; background: linear-gradient(to left, var(--bg), transparent); }
