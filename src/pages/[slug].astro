@@ -48,25 +48,25 @@ const related = [...all.filter((r) => r.data.category === d.category), ...all.fi
   <div class="wrap">
     <header class="post-head">
       <div>
-        <a class="badge" href={`/category/${d.category}/`} style="text-decoration:none">{cat.name}</a>
-        <h1>{d.title}</h1>
-        <p class="lede">{d.description}</p>
-        <div class="facts">
-          <div><b>Prep</b><span>{d.prepMinutes}m</span></div>
-          <div><b>Cook</b><span>{d.cookMinutes}m</span></div>
-          <div><b>Total</b><span>{total}m</span></div>
-          <div><b>Serves</b><span>{d.servings}</span></div>
-        </div>
+        <h1 class="rise">{d.title}</h1>
+        <p class="lede rise">{d.description}</p>
+        <p class="where rise"><a href={`/category/${d.category}/`}>{cat.name}</a>, {d.cuisine} cooking.</p>
+        <dl class="facts rise">
+          <div><dt>Prep</dt><dd>{d.prepMinutes} min</dd></div>
+          <div><dt>Cook</dt><dd>{d.cookMinutes} min</dd></div>
+          <div><dt>Total</dt><dd>{total} min</dd></div>
+          <div><dt>Serves</dt><dd>{d.servings}</dd></div>
+        </dl>
         <div class="actions">
-          <a class="btn primary" href="#recipe">Start cooking ↓</a>
+          <a class="btn primary" href="#recipe">Jump to the recipe</a>
           <button class="btn" type="button" aria-pressed="false" data-cook>Cook mode</button>
           <button class="btn" type="button" data-print>Print</button>
+          <a class="btn" href={pinHref} target="_blank" rel="noopener">Save to Pinterest</a>
         </div>
         <p class="note">Recipe and photo made with AI. Amazon links below are affiliate links: as an Amazon Associate I earn from qualifying purchases.</p>
       </div>
       <div class="post-media">
         <Img src={d.image.src} alt={d.image.alt} label={d.title} eager />
-        <a class="save" href={pinHref} target="_blank" rel="noopener">Save to Pinterest</a>
       </div>
     </header>
 
@@ -74,7 +74,7 @@ const related = [...all.filter((r) => r.data.category === d.category), ...all.fi
       <aside>
         <div class="panel">
           <div class="panel-head">
-            <h3>Ingredients</h3>
+            <h2>Ingredients</h2>
             <div class="stepper" data-base={d.servings}>
               <button type="button" aria-label="Fewer servings" data-step="-1">−</button>
               <output aria-live="polite" data-servings>{d.servings} servings</output>
@@ -87,17 +87,20 @@ const related = [...all.filter((r) => r.data.category === d.category), ...all.fi
             ))}
           </ul>
           <div class="gear">
-            <h3 style="margin:18px 0 4px">What you'll need</h3>
+            <h3>What you'll need</h3>
             {d.gear.map((g) => (
               <a href={amazonLink(g.search)} rel="sponsored nofollow noopener" target="_blank">
-                <strong>{g.name}</strong><small>{g.why}</small><span class="go">Amazon ↗</span>
+                <strong>{g.name}</strong><small>{g.why}</small><span class="go">On Amazon</span>
               </a>
             ))}
           </div>
         </div>
       </aside>
       <div>
-        <h3>Method · tap a step when it's done</h3>
+        <div class="method-head">
+          <h2>Method</h2>
+          <p>Tap a step when it's done.</p>
+        </div>
         <ol class="steps">
           {d.steps.map((s, i) => <li id={`step-${i + 1}`}>{s}</li>)}
         </ol>

@@ -27,13 +27,13 @@ const fullTitle = title === SITE.name ? `${SITE.name} | ${SITE.tagline}` : `${ti
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <slot name="head" />
 </head>
 <body>
   <header class="site">
     <div class="wrap">
-      <a href="/" class="logo">Chef<i>Yang</i></a>
+      <a href="/" class="logo">ChefYang</a>
       <nav class="cats">
         {Object.entries(CATEGORIES).map(([slug, c]) => <a href={`/category/${slug}/`} aria-current={Astro.url.pathname.startsWith(`/category/${slug}/`) ? 'page' : undefined}>{c.name}</a>)}
       </nav>
@@ -42,10 +42,12 @@ const fullTitle = title === SITE.name ? `${SITE.name} | ${SITE.tagline}` : `${ti
   <main><slot /></main>
   <footer class="site">
     <div class="wrap">
-      <a href="/" class="logo">Chef<i>Yang</i></a>
-      <p><strong>ChefYang is an AI chef.</strong> Every recipe, photo and caption on this site is made with AI, as an open experiment. <a href="/about/">How it works</a></p>
-      <p>As an Amazon Associate I earn from qualifying purchases. <a href="/affiliate-disclosure/">Affiliate disclosure</a> · <a href="/privacy/">Privacy</a> · <a href={SITE.pinterest}>Pinterest</a> · <a href={SITE.instagram}>Instagram</a></p>
-      <p>© {new Date().getFullYear()} ChefYang</p>
+      <div class="cols">
+        <p>ChefYang is an AI chef. Every recipe, photo and caption on this site is made with AI, as an open experiment in how far AI can go in the kitchen. <a href="/about/">How a recipe is made</a></p>
+        <p>As an Amazon Associate I earn from qualifying purchases. <a href="/affiliate-disclosure/">Affiliate disclosure</a>, <a href="/privacy/">privacy</a>, <a href={SITE.pinterest}>Pinterest</a> and <a href={SITE.instagram}>Instagram</a>.</p>
+      </div>
+      <a href="/" class="big" aria-label="ChefYang home">ChefYang</a>
+      <small>© {new Date().getFullYear()} ChefYang</small>
     </div>
   </footer>
 </body>

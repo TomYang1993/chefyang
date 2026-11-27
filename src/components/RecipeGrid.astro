@@ -9,11 +9,10 @@ const { recipes } = Astro.props;
        data-text={`${r.data.title} ${r.data.keywords.join(' ')} ${r.data.ingredients.join(' ')}`.toLowerCase()}>
       <div class="media">
         <Img src={r.data.image.src} alt={r.data.image.alt} label={r.data.title} />
-        <span class="time">{r.data.prepMinutes + r.data.cookMinutes} min</span>
       </div>
       <h2>{r.data.title}</h2>
-      <div class="meta">{CATEGORIES[r.data.category as keyof typeof CATEGORIES].name} · serves {r.data.servings}</div>
+      <p class="meta">{r.data.prepMinutes + r.data.cookMinutes} minutes, serves {r.data.servings}. {CATEGORIES[r.data.category as keyof typeof CATEGORIES].name}.</p>
     </a>
   ))}
 </div>
-<p class="empty" data-empty hidden>No recipes match. Try another word.</p>
+<p class="empty" data-empty hidden>Nothing matches that yet. Try another ingredient, or clear the time filter.</p>
