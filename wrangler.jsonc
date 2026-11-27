@@ -1,0 +1,11 @@
+// Cloudflare Workers static-assets config. Serves the Astro build in ./dist.
+// The empty `previews` block lets Workers Builds run `wrangler preview` for PR branches.
+{
+  "name": "chefyang",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  "previews": {}
+}
