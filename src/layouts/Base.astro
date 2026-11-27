@@ -42,12 +42,16 @@ const fullTitle = title === SITE.name ? `${SITE.name} | ${SITE.tagline}` : `${ti
   <main><slot /></main>
   <footer class="site">
     <div class="wrap">
-      <div class="cols">
-        <p>ChefYang is an AI chef. Every recipe, photo and caption on this site is made with AI, as an open experiment in how far AI can go in the kitchen. <a href="/about/">How a recipe is made</a></p>
-        <p>As an Amazon Associate I earn from qualifying purchases. <a href="/affiliate-disclosure/">Affiliate disclosure</a>, <a href="/privacy/">privacy</a>, <a href={SITE.pinterest}>Pinterest</a> and <a href={SITE.instagram}>Instagram</a>.</p>
-      </div>
+      <nav class="social" aria-label="ChefYang on social media">
+        <a href={SITE.pinterest} rel="noopener" target="_blank" aria-label="ChefYang on Pinterest">
+          <svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="currentColor" /><path class="cut" d="M10.4 20.5 12.7 10M9.1 13.1c-.4-3.4 1.9-6 4.9-6 2.5 0 4 1.6 4 3.8 0 2.8-1.7 4.8-3.9 4.8-1.2 0-2-.8-1.8-1.9" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </a>
+        <a href={SITE.instagram} rel="noopener" target="_blank" aria-label="ChefYang on Instagram">
+          <svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5.5" /><circle cx="12" cy="12" r="4.6" /><circle cx="17.6" cy="6.4" r="1.3" fill="currentColor" stroke="none" /></svg>
+        </a>
+      </nav>
       <a href="/" class="big" aria-label="ChefYang home">ChefYang</a>
-      <small>© {new Date().getFullYear()} ChefYang</small>
+      <small>© {new Date().getFullYear()} ChefYang · <a href="/about/">About</a> · <a href="/affiliate-disclosure/">Affiliate disclosure</a> · <a href="/privacy/">Privacy</a></small>
     </div>
   </footer>
 </body>
