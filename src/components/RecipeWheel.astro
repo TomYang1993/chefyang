@@ -45,7 +45,7 @@ const step = 360 / Math.max(n, 1);
   .wheel-meta strong { font: 800 1.5rem/1.02 var(--font); letter-spacing: -0.03em; }
   .wheel-caption { text-align: center; margin: 4px 0 0; font: 700 1.3rem/1.2 var(--font); letter-spacing: -0.02em; min-height: 1.8em; }
   .wheel-caption a { text-decoration: none; }
-  .wheel-caption a:hover { color: var(--accent); }
+  .wheel-caption a:hover { color: var(--accent-text, var(--accent)); }
   @media (max-width: 640px) { .wheel { --w: 170px; --h: 235px; --r: 290px; } .wheel-meta strong { font-size: 1.15rem; } .wheel-stage { perspective: 1600px; } }
 </style>
 
