@@ -1,0 +1,165 @@
+---
+// An endless row of magazine-cover recipe cards in a coverflow curve.
+// Drag, swipe or scroll sideways; covers bend like paper with the speed. Vanilla JS + CSS 3D.
+import type { ShowcaseItem } from '../utils/showcase';
+import { cardBackground } from '../utils/showcase';
+interface Props { items: ShowcaseItem[]; label?: string; slices?: number; autoSpeed?: number }
+const { items, label = 'Recipe covers', slices = 9, autoSpeed = 24 } = Astro.props;
+const mid = (slices - 1) / 2;
+const sliceList = Array.from({ length: slices }, (_, s) => ({
+  o: s - mid,
+  pos: slices === 1 ? 50 : Math.round((s * 100) / (slices - 1)),
+}));
+const copies = [0, 1, 2]; // three copies make the loop seamless
+---
+<section class="mag" data-mag data-auto={autoSpeed} aria-label={label} style={`--slices:${slices}`}>
+  <div class="mag-track" data-track>
+    {copies.map((copy) => items.map((it, i) => (
+      <a class="mag-cover" href={it.href} data-cover draggable="false" style={`--bg:${cardBackground(it, i)}`}
+         aria-hidden={copy === 1 ? undefined : 'true'} tabindex={copy === 1 ? undefined : -1}
+         aria-label={copy === 1 ? `${it.title}, ${it.minutes} minutes` : undefined}>
+        <span class="mag-paper">
+          {sliceList.map((s) => <span class="mag-slice" style={`--o:${s.o}; --ao:${Math.abs(s.o)}; --pos:${s.pos}%`} />)}
+        </span>
+        <span class="mag-print" aria-hidden="true">
+          <span class="mag-mast">ChefYang</span>
+          <span class="mag-issue">{it.category}</span>
+          <span class="mag-title">{it.title}</span>
+          <span class="mag-time">{it.minutes} min</span>
+        </span>
+      </a>
+    )))}
+  </div>
+  <span class="mag-fade left" aria-hidden="true"></span>
+  <span class="mag-fade right" aria-hidden="true"></span>
+</section>
+
+<style>
+  .mag { --cw: 210px; --ch: 290px; --gap: 34px; --bend: 0; --abend: 0;
+    position: relative; height: calc(var(--ch) + 140px); overflow: hidden; display: flex; align-items: center;
+    cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; perspective: 1400px; }
+  .mag.dragging { cursor: grabbing; }
+  .mag-track { display: flex; align-items: center; gap: var(--gap); transform-style: preserve-3d; will-change: transform; }
+  .mag-cover { position: relative; flex: 0 0 auto; width: var(--cw); height: var(--ch); text-decoration: none; color: #fff;
+    transform-style: preserve-3d; will-change: transform; -webkit-user-drag: none;
+    transform: perspective(1200px) translateY(var(--y, 0px)) rotateY(var(--ry, 0deg)) rotateZ(calc(var(--bend) * 0.08deg)) scale(var(--s, 1));
+    opacity: var(--op, 1); }
+  .mag-paper { position: absolute; inset: 0; display: flex; overflow: hidden; transform-style: preserve-3d; }
+  .mag-slice { flex: 1 1 0; height: 100%; margin-right: -1px; /* overlap hides hairline seams */ background-image: var(--bg); background-repeat: no-repeat;
+    background-size: calc(var(--slices) * 100%) 100%; background-position: var(--pos) 50%; backface-visibility: hidden;
+    transform: rotateY(calc(var(--bend) * var(--o) * 0.22deg)) skewY(calc(var(--bend) * var(--o) * 0.014deg))
+      translateZ(calc(var(--abend) * var(--ao) * -0.18px)); }
+  .mag-print { position: absolute; inset: 0; display: grid; grid-template-rows: auto auto 1fr auto; padding: 14px 14px 16px;
+    pointer-events: none; text-shadow: 0 1px 12px rgb(0 0 0 / .35);
+    background: linear-gradient(to bottom, rgb(0 0 0 / .28), transparent 30%, transparent 55%, rgb(0 0 0 / .55)); }
+  .mag-mast { font: 800 1.9rem/0.9 var(--font); letter-spacing: -0.05em; }
+  .mag-issue { font: 600 0.62rem/1 var(--font); letter-spacing: .14em; text-transform: uppercase; margin-top: 8px; opacity: .9; }
+  .mag-title { align-self: end; font: 800 1.35rem/1 var(--font); letter-spacing: -0.03em; }
+  .mag-time { margin-top: 10px; justify-self: start; font: 600 0.68rem/1 var(--font); letter-spacing: .06em; padding: 6px 9px;
+    background: var(--accent); color: var(--accent-ink); text-shadow: none; }
+  .mag-fade { position: absolute; top: 0; bottom: 0; width: 72px; z-index: 2; pointer-events: none; }
+  .mag-fade.left { left: 0; background: linear-gradient(to right, var(--bg), transparent); }
+  .mag-fade.right { right: 0; background: linear-gradient(to left, var(--bg), transparent); }
+  @media (max-width: 640px) { .mag { --cw: 160px; --ch: 225px; --gap: 22px; } .mag-mast { font-size: 1.6rem; } .mag-title { font-size: 1.15rem; } }
+</style>
+
+<script>
+  const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('[data-mag]').forEach((root) => {
+    const track = root.querySelector<HTMLElement>('[data-track]')!;
+    const covers = [...root.querySelectorAll<HTMLElement>('[data-cover]')];
+    const perCopy = covers.length / 3;
+    if (!perCopy) return;
+    const auto = reduce ? 0 : Number(root.dataset.auto) || 0; // px per second
+
+    let cw = 0, stepPx = 0, loop = 0, width = 0;
+    function measure() {
+      cw = covers[0].offsetWidth;
+      stepPx = covers[1] ? covers[1].offsetLeft - covers[0].offsetLeft : cw;
+      loop = perCopy * stepPx;
+      width = root.clientWidth;
+    }
+    measure();
+    new ResizeObserver(measure).observe(root);
+
+    // Start with the middle copy centred.
+    let target = -loop + width / 2 - cw / 2, x = target, vel = 0, last = performance.now();
+    let dragging = false, hovered = false, visible = true, raf = 0, lastBend = 99;
+
+    function tick(now: number) {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      if (auto && !dragging && !hovered) target -= auto * dt;
+      const prev = x;
+      x += (target - x) * (1 - Math.exp(-dt * 10));
+      vel += ((x - prev) / Math.max(dt, 0.001) - vel) * (1 - Math.exp(-dt * 6));
+
+      // Keep x inside one loop width so the row never runs out.
+      const wrapped = ((((x + loop) % loop) + loop) % loop) - loop;
+      if (wrapped !== x) { target += wrapped - x; x = wrapped; }
+      track.style.transform = `translate3d(${x}px,0,0)`;
+
+      const bend = clamp(vel / 82, -100, 100);
+      if (Math.abs(bend - lastBend) > 0.05) {
+        root.style.setProperty('--bend', bend.toFixed(2));
+        root.style.setProperty('--abend', Math.abs(bend).toFixed(2));
+        lastBend = bend;
+      }
+
+      const mid = width / 2;
+      covers.forEach((c, i) => {
+        const centre = x + i * stepPx + cw / 2;
+        if (centre < -cw * 2 || centre > width + cw * 2) return; // off screen
+        const d = (centre - mid) / mid;
+        const ad = Math.abs(d);
+        c.style.setProperty('--ry', `${clamp(d * -62, -76, 76).toFixed(1)}deg`);
+        c.style.setProperty('--s', clamp(1 - ad * 0.15, 0.82, 1).toFixed(3));
+        c.style.setProperty('--op', clamp(1 - ad * 0.38, 0.48, 1).toFixed(3));
+        c.style.setProperty('--y', `${clamp(ad * 30, 0, 44).toFixed(1)}px`);
+      });
+      raf = visible ? requestAnimationFrame(tick) : 0;
+    }
+    function start() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); } }
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) start(); }).observe(root);
+
+    root.addEventListener('mouseenter', () => (hovered = true));
+    root.addEventListener('mouseleave', () => (hovered = false));
+    root.addEventListener('focusin', (e) => {
+      hovered = true;
+      // Bring a keyboard-focused cover to the centre.
+      const c = (e.target as HTMLElement).closest<HTMLElement>('[data-cover]');
+      if (c) { root.scrollLeft = 0; target = -(covers.indexOf(c) * stepPx) + width / 2 - cw / 2; start(); }
+    });
+    root.addEventListener('focusout', () => (hovered = false));
+
+    // Sideways wheel / trackpad only: vertical scrolling keeps scrolling the page.
+    root.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      target -= e.deltaX * 1.15;
+      start();
+    }, { passive: false });
+
+    let startX = 0, startTarget = 0, moved = false, down = false;
+    root.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      down = true; moved = false; startX = e.clientX; startTarget = target;
+    });
+    root.addEventListener('pointermove', (e) => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) > 5) {
+        moved = true; dragging = true; root.classList.add('dragging'); root.setPointerCapture(e.pointerId);
+      }
+      if (moved) target = startTarget + dx * 1.15;
+    });
+    const end = () => { down = false; dragging = false; root.classList.remove('dragging'); };
+    root.addEventListener('pointerup', end);
+    root.addEventListener('pointercancel', end);
+    root.addEventListener('click', (e) => { if (moved) { e.preventDefault(); moved = false; } }, true);
+
+    start();
+  });
+</script>
