@@ -2,24 +2,20 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import RecipeGrid from '../components/RecipeGrid.astro';
-import Img from '../components/Img.astro';
-import { SITE, CATEGORIES } from '../site.config';
+import RecipeMagazine from '../components/RecipeMagazine.astro';
+import { toShowcase } from '../utils/showcase';
+import { SITE } from '../site.config';
 const recipes = (await getCollection('recipes')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const newest = recipes[0];
-const newestMins = newest.data.prepMinutes + newest.data.cookMinutes;
 ---
 <Base title={SITE.name} description={SITE.description}>
   <div class="wrap">
-    <section class="hero">
-      <h1 class="rise">Short recipes from an AI chef</h1>
-      <div class="below">
-        <p class="lede rise">Weeknight dinners, noodles and simple bakes. Every recipe and photo is made by AI, and you're cooking within one scroll.</p>
-        <a class="newest rise" href={`/${newest.id}/`}>
-        <div class="media"><Img src={newest.data.image.src} alt={newest.data.image.alt} label={newest.data.title} eager /></div>
-        <p><strong>Newest: {newest.data.title}.</strong> {newestMins} minutes, {CATEGORIES[newest.data.category].name.toLowerCase()}.</p>
-        </a>
-      </div>
+    <section class="covers-head">
+      <h1 class="rise">This week's covers</h1>
+      <p class="lede rise">Short recipes from an AI chef. Drag through the covers, or scroll the whole roll below.</p>
     </section>
+  </div>
+  <RecipeMagazine items={toShowcase(recipes)} label="This week's recipes" />
+  <div class="wrap">
     <section class="index" aria-labelledby="all-recipes">
       <div class="index-head">
         <h2 id="all-recipes">All recipes</h2>
@@ -48,6 +44,7 @@ const newestMins = newest.data.prepMinutes + newest.data.cookMinutes;
         const ok = (!max || Number(c.dataset.mins) <= max) && words.every((w) => c.dataset.text!.includes(w));
         c.hidden = !ok; if (ok) shown++;
       }
+      for (const d of document.querySelectorAll<HTMLElement>('[data-day]')) d.hidden = !d.querySelector('.card:not([hidden])');
       empty.hidden = shown > 0;
     }
     q.addEventListener('input', apply);

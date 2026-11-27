@@ -1,18 +1,48 @@
 ---
-import Img from './Img.astro';
-import { CATEGORIES } from '../site.config';
+// Recipes as a photo roll: small square tiles, hairline gaps, grouped by day like a camera roll.
+// The cook time sits where a phone shows a video's length; the title shows on hover and in the label.
+import type { CollectionEntry } from 'astro:content';
+import { imageExists, cardBackground } from '../utils/showcase';
+interface Props { recipes: CollectionEntry<'recipes'>[] }
 const { recipes } = Astro.props;
+const fmt = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+const days = new Map<string, CollectionEntry<'recipes'>[]>();
+for (const r of recipes) {
+  const key = fmt.format(r.data.date);
+  days.set(key, [...(days.get(key) ?? []), r]);
+}
+let n = 0;
+const groups = [...days].map(([day, list]) => ({
+  day,
+  tiles: list.map((r) => {
+    const mins = r.data.prepMinutes + r.data.cookMinutes;
+    const src = r.data.image.src;
+    const has = imageExists(src);
+    return {
+      r, mins, has, src,
+      bg: cardBackground({ image: null } as any, n++),
+      text: `${r.data.title} ${r.data.keywords.join(' ')} ${r.data.ingredients.join(' ')}`.toLowerCase(),
+    };
+  }),
+}));
 ---
-<div class="grid" data-grid>
-  {recipes.map((r: any) => (
-    <a class="card" href={`/${r.id}/`} data-cat={r.data.category} data-mins={r.data.prepMinutes + r.data.cookMinutes}
-       data-text={`${r.data.title} ${r.data.keywords.join(' ')} ${r.data.ingredients.join(' ')}`.toLowerCase()}>
-      <div class="media">
-        <Img src={r.data.image.src} alt={r.data.image.alt} label={r.data.title} />
+<div class="roll" data-grid>
+  {groups.map((g) => (
+    <section class="roll-day" data-day>
+      <h3 class="roll-date">{g.day}</h3>
+      <div class="grid">
+        {g.tiles.map((t) => (
+          <a class="card" href={`/${t.r.id}/`} data-cat={t.r.data.category} data-mins={t.mins} data-text={t.text}
+             aria-label={`${t.r.data.title}, ${t.mins} minutes`}>
+            {t.has
+              ? <img src={t.src} alt={t.r.data.image.alt} width="600" height="600" loading="lazy" decoding="async" />
+              : <span class="tile-ph" style={`--bg:${t.bg}`} aria-hidden="true">{t.r.data.title}</span>}
+            <span class="dur" aria-hidden="true">{t.mins} min</span>
+            <span class="cap" aria-hidden="true">{t.r.data.title}</span>
+          </a>
+        ))}
       </div>
-      <h2>{r.data.title}</h2>
-      <p class="meta">{r.data.prepMinutes + r.data.cookMinutes} minutes, serves {r.data.servings}. {CATEGORIES[r.data.category as keyof typeof CATEGORIES].name}.</p>
-    </a>
+    </section>
   ))}
 </div>
 <p class="empty" data-empty hidden>Nothing matches that yet. Try another ingredient, or clear the time filter.</p>
