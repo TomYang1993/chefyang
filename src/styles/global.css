@@ -1,15 +1,16 @@
-/* ChefYang: one family, one ground, one ink, one accent (scallion green).
+/* ChefYang: one family, one ground, one ink, one accent (egg-yolk yellow).
+   Yellow is a fill with ink on it; --accent-text is the darker mustard for small text on the light ground.
    Surfaces separate by tone, not by lines or shadows. Corners are square. */
 :root {
   --bg: #f1f1ee; --sunk: #e5e5e0; --ink: #141414; --muted: #5a5a55;
-  --accent: #1e6b3a; --accent-ink: #ffffff;
+  --accent: #f5b700; --accent-ink: #141414; --accent-text: #7a5000;
   --gutter: clamp(16px, 2.5vw, 32px); --max: 1440px; --measure: 68ch;
   --font: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #121211; --sunk: #1f1f1d; --ink: #eeeee9; --muted: #a2a29c; --accent: #74d197; --accent-ink: #0b1a10; }
+  :root { --bg: #121211; --sunk: #1f1f1d; --ink: #eeeee9; --muted: #a2a29c; --accent: #f5b700; --accent-ink: #141414; --accent-text: #f5b700; }
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -17,8 +18,8 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 400 18px/1.55 
 .facts dd, .stepper output, .steps li::before { font-variant-numeric: tabular-nums; }
 img { max-width: 100%; height: auto; display: block; }
 a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; transition: color .2s var(--ease); }
-a:hover { color: var(--accent); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+a:hover { color: var(--accent-text); text-decoration-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 3px; }
 h1, h2, h3 { margin: 0; font-weight: 800; letter-spacing: -0.035em; line-height: 0.98; text-wrap: balance; }
 h3 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.015em; line-height: 1.2; }
 p { margin: 0 0 1em; }
@@ -40,7 +41,7 @@ header.site .wrap { display: flex; align-items: baseline; justify-content: space
 .logo { font: 800 1.5rem/1 var(--font); letter-spacing: -0.04em; text-decoration: none; }
 nav.cats { display: flex; gap: 24px; overflow-x: auto; scrollbar-width: none; }
 nav.cats a { white-space: nowrap; font-size: 1rem; text-decoration: none; }
-nav.cats a[aria-current='page'] { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+nav.cats a[aria-current='page'] { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 4px; text-underline-offset: 6px; }
 @media (max-width: 760px) { header.site .wrap { flex-direction: column; gap: 12px; } nav.cats { width: 100%; gap: 20px; } }
 
 /* Home hero: headline left, the newest dish as one dominant picture right */
@@ -67,8 +68,8 @@ nav.cats a[aria-current='page'] { text-decoration: underline; text-decoration-th
 .search input:focus { outline: 2px solid var(--ink); outline-offset: 0; }
 .filters { display: flex; gap: 20px; }
 .filter { font: inherit; font-size: 1rem; color: var(--ink); background: none; border: 0; padding: 4px 0; cursor: pointer; text-underline-offset: 6px; }
-.filter:hover { color: var(--accent); }
-.filter[aria-pressed='true'] { text-decoration: underline; text-decoration-thickness: 2px; font-weight: 700; }
+.filter:hover { color: var(--accent-text); }
+.filter[aria-pressed='true'] { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 4px; font-weight: 700; }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 56px var(--gutter); }
 .card { text-decoration: none; display: grid; gap: 14px; align-content: start; }
@@ -76,7 +77,7 @@ nav.cats a[aria-current='page'] { text-decoration: underline; text-decoration-th
 .card .media img, .card .media .ph { aspect-ratio: 4 / 5; width: 100%; object-fit: cover; transition: transform .8s var(--ease); }
 .card:hover .media img, .card:hover .media .ph { transform: scale(1.04); }
 .card h2 { font-size: 1.6rem; letter-spacing: -0.025em; line-height: 1.08; transition: color .2s var(--ease); }
-.card:hover h2 { color: var(--accent); }
+.card:hover h2 { color: var(--accent-text); }
 .card .meta { font-size: 1rem; margin: -4px 0 0; }
 .empty { padding: 40px 0; }
 
@@ -126,15 +127,15 @@ nav.cats a[aria-current='page'] { text-decoration: underline; text-decoration-th
 .gear a { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; padding: 10px 0; text-decoration: none; }
 .gear strong { font-weight: 700; }
 .gear small { grid-column: 1; font-size: 0.95rem; color: var(--muted); }
-.gear .go { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-size: 0.95rem; font-weight: 600; color: var(--accent); }
-.gear a:hover strong { color: var(--accent); }
+.gear .go { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-size: 0.95rem; font-weight: 600; color: var(--accent-text); }
+.gear a:hover strong { color: var(--accent-text); }
 
 .method-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; }
 .method-head p { margin: 0; color: var(--muted); font-size: 1rem; }
 .steps { list-style: none; margin: 32px 0 0; padding: 0; counter-reset: s; }
 .steps li { counter-increment: s; display: grid; grid-template-columns: 56px 1fr; gap: 16px; padding: 14px 0; max-width: var(--measure); cursor: pointer; transition: color .25s var(--ease), opacity .25s var(--ease); font-size: 1.1rem; }
 .steps li::before { content: counter(s); font: 800 2.2rem/0.9 var(--font); letter-spacing: -0.04em; }
-.steps li:hover::before { color: var(--accent); }
+.steps li:hover::before { color: var(--accent-text); }
 .steps li.done { color: var(--muted); }
 .tips { margin-top: 48px; max-width: var(--measure); }
 .tips ul { margin: 12px 0 0; padding-left: 20px; }
@@ -147,9 +148,10 @@ nav.cats a[aria-current='page'] { text-decoration: underline; text-decoration-th
 body.cook .steps li { font-size: 1.4rem; }
 body.cook .checklist label { font-size: 1.2rem; }
 
-/* Footer: a field change and the name at full width */
-footer.site { background: var(--ink); color: var(--bg); margin-top: clamp(120px, 14vw, 220px); padding: 72px 0 32px; }
-footer.site a:hover { color: var(--bg); text-decoration-thickness: 2px; }
+/* Footer: a field change to yolk yellow and the name at full width */
+footer.site { background: var(--accent); color: var(--accent-ink); margin-top: clamp(120px, 14vw, 220px); padding: 72px 0 32px; }
+footer.site a:hover { color: var(--accent-ink); text-decoration-color: var(--accent-ink); text-decoration-thickness: 2px; }
+footer.site :focus-visible { outline-color: var(--accent-ink); }
 footer.site .cols { display: grid; gap: 24px; font-size: 1rem; }
 footer.site .cols p { max-width: 46ch; }
 @media (min-width: 900px) { footer.site .cols { grid-template-columns: 1fr 1fr; gap: var(--gutter); } }
